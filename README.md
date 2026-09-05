@@ -23,28 +23,6 @@ The first skill generates the thing designers skip most often and regret every t
 | Your file | **never modified** — it clones, and it asks first |
 | Manual cost replaced | ~15–20 min per state, per screen |
 
-## Why it is not a prompt
-
-Every threshold in these skills was derived by running code against real Figma files and checking the result against screenshots. The rules that survived are the ones that were **measured**, and the failures are documented next to them.
-
-Verification sample: 1 authored file + **2 real-world production files** (a Spotify clone, 22 screens; a Netflix ticketing flow, 50 screens).
-
-| What was measured | Result |
-|---|---|
-| List row detection | **19 / 21 correct**, 0 false positives after fixes |
-| Content-area detection across 3 file styles | 7 / 7 screens |
-| Chrome classification (status bar, nav, tab, home indicator) | 6 / 6 screens; 1 partial (over-split tab bar) |
-| Duplicate overlapping nodes found in production files | 9 |
-| Generated states rendered and reviewed | Loading, Empty, Error |
-| Text overrides surviving `detachInstance()` | verified preserved |
-
-The single most useful finding is a warning about our own first draft:
-
-> **Production files do not use auto layout at the screen root.**
-> 0 of 22 Spotify screens. 0 of 50 Netflix screens. 18 of 18 in the file we had authored ourselves.
-> Our first algorithm keyed on `layoutGrow === 1` and called it "the decisive signal". That was sampling bias, and it would have failed on every real file.
-
-Details, thresholds and the full scorecard: [`skeleton-inference.md`](skills/figma-state-frames/references/skeleton-inference.md)
 
 ## Requirements
 
