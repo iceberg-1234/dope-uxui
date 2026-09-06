@@ -1,0 +1,35 @@
+name: Skill verification
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security:
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: iceberg-1234/agent-workflows/.github/workflows/skillspector.yml@main
+    with:
+      fail-on: HIGH
+      scan-all: true
+      comment-on-pr: false
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.17.0'
+      - name: Test figma-design-audit
+        run: node --test skills/figma-design-audit/tests/metrics.test.mjs
+      - name: Test figma-naming-convention
+        run: node --test skills/figma-naming-convention/tests/detect-patterns.test.mjs
