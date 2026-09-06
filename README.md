@@ -27,7 +27,7 @@ The first skill generates the thing designers skip most often and regret every t
 ## Requirements
 
 - An agent that supports skills — Claude Code, Cursor, Codex, or similar
-- **The [Figma MCP server](https://help.figma.com/hc/en-us/articles/32132100833559)** with write access to the file you point it at
+- **The [Figma MCP server](https://help.figma.com/hc/en-us/articles/32132100833559)** with access to the target file. State generation requires write access; the audit only reads. Some detailed audit checks require the write-capable `use_figma` tool for property inspection, but the skill permits no mutations
 - A Figma file with at least one screen frame
 
 ## Install
@@ -49,12 +49,16 @@ You can also just copy a `SKILL.md` into your project, or paste it into a conver
 | Skill | Install name | What it does |
 |---|---|---|
 | **figma-state-frames** | `figma-state-frames` | Reads one screen, infers its skeleton, and generates Empty / Loading / Error / Offline / Data-heavy frames on a new page. Dry-run first, approval required, originals untouched. |
+| **figma-design-audit** | `figma-design-audit` | Read-only contrast, target-size, typography-policy, color-token, light/dark pair and overlapping-duplicate review. Reports evidence, node IDs and unverified checks; never applies fixes. |
+| **figma-naming-convention** | `figma-naming-convention` | Analyzes existing naming patterns and applies consistent conventions to all components, frames, and layers. Detects project rules or applies industry standards. Violations only, originals preserved. |
+
+All skills live under [`skills/`](skills/). Keep each skill's `references`, `scripts` and `tests` directories together when copying to another agent's skill directory. The audit skill is an initial implementation with local regression tests; end-to-end production Figma validation is pending. The naming skill is early-stage and requires real-file testing.
 
 More are planned — see [Roadmap](#roadmap).
 
 ## How it behaves
 
-Every skill here follows the same five-step contract, because the fastest way to lose a designer is to damage their working file.
+Skills that generate or change designs follow the same five-step contract, because the fastest way to lose a designer is to damage their working file. The read-only audit instead follows **Scope → Read → Evaluate → Verify → Report**: no APPLY step, no temporary clones and no mode toggles. Any fixes require a separate scoped proposal and approval.
 
 ```
 1. READ      read only — creates nothing, changes nothing
@@ -103,10 +107,11 @@ Every unverified rule inside the reference docs is tagged `unverified`. If you h
 Ordered by how much manual pain each removes, based on where designers actually lose time:
 
 1. **figma-state-frames** — state screens ← *shipped, early*
-2. **figma-design-audit** — read-only accessibility and token audit (contrast, 44pt targets, minimum text size, dark-mode pairs, duplicate nodes). Read-only means the lowest trust barrier
-3. **figma-token-normalize** — bind hardcoded colors to variables, align spacing to the scale, generate and verify dark-mode pairs, rename layers
-4. **figma-screen-build** — spec to screens
-5. **mobile-screen-spec** — PRD to screen list, IA and states (the one skill that needs no Figma access)
+2. **figma-design-audit** — *initial implementation; production validation pending*. Read-only accessibility and token audit with standards-based contrast, platform-aware target recommendations, project-defined type minimums, dark-mode pairs and duplicate candidates
+3. **figma-naming-convention** — *early-stage; real-file testing required*. Consistent naming for all components, frames, and layers. Auto-detects existing patterns or applies industry standards
+4. **figma-token-normalize** — bind hardcoded colors to variables, align spacing to the scale, generate and verify dark-mode pairs
+5. **figma-screen-build** — spec to screens
+6. **mobile-screen-spec** — PRD to screen list, IA and states (the one skill that needs no Figma access)
 
 ## Contributing
 
